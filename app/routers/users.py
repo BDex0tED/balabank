@@ -3,8 +3,8 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import List
 
-from ..database import get_session
-from ..models import User
+from app.database import get_session
+from app.models import User
 from ..core.deps import get_current_user
 
 router = APIRouter(prefix="/users", tags=["Users"])

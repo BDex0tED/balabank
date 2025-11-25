@@ -6,9 +6,9 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from pydantic import BaseModel, field_validator # <-- Импортируем field_validator
 import re # Библиотека для регулярных выражений (проверка шаблонов)
 
-from ..database import get_session
-from ..models import User
-from ..core.security import get_password_hash, verify_password, create_access_token
+from app.database import get_session
+from app.models import User
+from app.core.security import get_password_hash, verify_password, create_access_token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

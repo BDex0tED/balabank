@@ -5,9 +5,9 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from pydantic import BaseModel
 import uuid
 
-from ..database import get_session
-from ..models import User, Family, UserRole
-from ..core.deps import get_current_user  # Наш охранник
+from app.database import get_session
+from app.models import User, Family, UserRole
+from app.core.deps import get_current_user
 
 router = APIRouter(prefix="/families", tags=["Family Logic"])
 

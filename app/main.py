@@ -2,8 +2,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from sqlmodel import SQLModel
 
-from .database import engine
-from .routers import users, auth, family
+from app.routers import users, auth, family
+from app.database import engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

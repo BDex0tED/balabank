@@ -1,9 +1,21 @@
 version: '3.8'
 
 services:
+  backend:
+    build: .
+    container_name: balabank_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      # ВНИМАНИЕ: Тут должно быть @db:5432, а не localhost:5433
+      DATABASE_URL: postgresql+asyncpg://user:password@db:5432/family_db
+    restart: on-failure
+
   db:
     image: postgres:15-alpine
-    container_name: balabank_db # Я вернул имя как в твоем логе
+    container_name: balabank_db
     ports:
       - "5433:5432"
     environment:
@@ -11,8 +23,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: family_db
     volumes:
-      - db_data:/var/lib/postgresql/data # <--- ВАЖНО: теперь тут не путь, а имя
+      - db_data:/var/lib/postgresql/data
 
-# Это новая секция в самом низу файла
 volumes:
   db_data:
