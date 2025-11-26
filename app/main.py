@@ -5,6 +5,8 @@ from sqlmodel import SQLModel
 from app.routers import users, auth, family, tasks, loans, ask
 from app.database import engine
 
+from fastapi.middleware.cors import CORSMiddleware
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
@@ -14,6 +16,18 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="BalaBank API",
     lifespan=lifespan
+)
+
+origins = [
+    "*",                          
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,        
+    allow_credentials=True,       
+    allow_methods=["*"],          
+    allow_headers=["*"],          
 )
 
 app.include_router(auth.router)
@@ -27,4 +41,4 @@ app.include_router(ask.router)
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to BalaBank Soul Society"}
+    return {"message": "Yokoso watashi no soul society"}
