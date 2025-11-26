@@ -21,7 +21,6 @@ async def read_my_family(
     if current_user.family_id is None:
         return [current_user]
 
-    # Если семья есть, ищем остальных
     statement = select(User).where(User.family_id == current_user.family_id)
     result = await session.exec(statement)
     return result.all()
