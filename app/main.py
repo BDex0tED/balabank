@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from sqlmodel import SQLModel
 
-from app.routers import users, auth, family, tasks, loans
+from app.routers import users, auth, family, tasks, loans, ask
 from app.database import engine
 
 @asynccontextmanager
@@ -21,6 +21,7 @@ app.include_router(users.router)
 app.include_router(family.router)
 app.include_router(tasks.router)
 app.include_router(loans.router)
+app.include_router(ask.router)
 
 
 

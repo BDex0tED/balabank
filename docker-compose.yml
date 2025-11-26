@@ -9,8 +9,11 @@ services:
     depends_on:
       - db
     environment:
-      # ВНИМАНИЕ: Тут должно быть @db:5432, а не localhost:5433
       DATABASE_URL: postgresql+asyncpg://user:password@db:5432/family_db
+    
+    volumes:
+      - ./data:/app/data 
+    
     restart: on-failure
 
   db:
