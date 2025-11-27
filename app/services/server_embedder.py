@@ -2,7 +2,8 @@ from google import genai
 from google.genai import types
 import numpy as np
 
-client = genai.Client(api_key="AIzaSyCqv5LRxlTDb12eFlWua3iBFBlpmY0QF74") # <- укажи свой api_key
+api_key = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=api_key) if api_key else None # <- укажи свой api_key
 
 def embedder(texts: list[str]):
     contents = [
