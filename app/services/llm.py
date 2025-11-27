@@ -1,3 +1,4 @@
+import os 
 from google import genai
 
 api_key = os.getenv("GEMINI_API_KEY")
