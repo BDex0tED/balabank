@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List, Optional
 import uuid
 
 from app.database import get_session
 from app.models import User, Family, UserRole, FamilyRequest, RequestStatus
 from app.core.deps import get_current_user
+from app.core.security import get_password_hash # <-- Не забудь этот импорт!
 
 router = APIRouter(prefix="/families", tags=["Family Logic"])
 
@@ -37,6 +38,27 @@ class FamilyResponse(BaseModel):
     invite_code: str
     role_in_family: Optional[UserRole] = None
 
+class ChildRegistrationRequest(BaseModel):
+    phone_number: str 
+    surname: str
+    name: str
+    paternity: str
+    password: str
+    age: int
+
+    @field_validator('phone_number')
+    @classmethod
+    def validate_phone(cls, v: str) -> str:
+        clean_number = v.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+        if not clean_number.isdigit():
+            raise ValueError('Номер должен содержать только цифры')
+        if len(clean_number) == 10 and clean_number.startswith("0"):
+            clean_number = clean_number[1:]
+        if len(clean_number) != 9:
+            raise ValueError('Номер должен состоять из 9 цифр')
+        return f"+996{clean_number}"
+
+
 
 @router.post("/create")
 async def create_family(
@@ -63,6 +85,40 @@ async def create_family(
 
     return {"message": "Family created", "invite_code": code}
 
+@router.post("/add-child")
+async def add_child_account(
+    data: ChildRegistrationRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session)
+):
+    if current_user.role != UserRole.PARENT:
+        raise HTTPException(status_code=403, detail="Only parents can add children directly")
+    
+    if not current_user.family_id:
+        raise HTTPException(status_code=400, detail="Create a family first!")
+
+    stmt = select(User).where(User.phone_number == data.phone_number)
+    if (await session.exec(stmt)).first():
+        raise HTTPException(status_code=400, detail="Phone number already registered")
+
+    new_child = User(
+        phone_number=data.phone_number,
+        hashed_password=get_password_hash(data.password), 
+        surname=data.surname,
+        name=data.name,
+        paternity=data.paternity,
+        age=data.age,
+        balance=0.0,
+        role=UserRole.CHILD,          
+        family_id=current_user.family_id
+    )
+
+    session.add(new_child)
+    await session.commit()
+
+    return {"message": f"Child {data.name} added to family successfully!"}
+
+
 @router.post("/request-join")
 async def request_join_family(
     data: JoinFamilyRequest,
@@ -84,7 +140,7 @@ async def request_join_family(
         FamilyRequest.status == RequestStatus.PENDING
     )
     if (await session.exec(stmt_req)).first():
-        raise HTTPException(status_code=400, detail="You already have a pending request to this family")
+        raise HTTPException(status_code=400, detail="Request already sent")
 
     new_request = FamilyRequest(
         user_id=current_user.id, 
