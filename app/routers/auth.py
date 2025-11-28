@@ -21,6 +21,7 @@ class UserRegistration(BaseModel):
     paternity: str
     password: str
     age: int
+    role: str
 
     @field_validator('phone_number')
     @classmethod
@@ -56,7 +57,7 @@ async def register(
         paternity=data.paternity,
         age=data.age,
         balance=Decimal("0.00"),
-        role=None,
+        role=data.role,
         family_id=None
     )
 
