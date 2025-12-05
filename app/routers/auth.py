@@ -105,8 +105,8 @@ async def register(
 
     session.add(new_user)
     await session.commit()
-    
-    return {"message": "User registered successfully"}
+
+    return {"message": "User registered successfully", "family_id": new_family.id}
 
 @router.post("/register-child", status_code=status.HTTP_201_CREATED)
 async def register_child(
